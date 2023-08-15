@@ -138,7 +138,7 @@ for found_item_name, found_item in found_items.items():
                     url_____ = lost_attachment_url.split('id')[1]
                     print(url_____)
                     lost_attachment_url = "https://drive.google.com/uc?id" + url_____
-                    response = requests.get(attachment_url)
+                    response = requests.get(lost_attachment_url)
                     if response.status_code ==200:
                       lost_attachment_content = response.content
                       lost_attachment_image = cv2.imdecode(np.frombuffer(lost_attachment_content, np.uint8), cv2.IMREAD_COLOR)
