@@ -82,7 +82,7 @@ for response in responses:
             'attachments': attachments
         }
 
-
+ssim_score = -111111
     # Match found items with lost items
 for found_item_name, found_item in found_items.items():
     message = MIMEMultipart() 
@@ -113,27 +113,68 @@ for found_item_name, found_item in found_items.items():
         if found_item['attachments']:
             for attachment_url in found_item['attachments']:
                 # Read the image from the attachment URL
+                url_____ = attachment_url.split('id')[1]
+                print(url_____)
+                attachment_url = "https://drive.google.com/uc?id" + url_____
                 response = requests.get(attachment_url)
                 if response.status_code ==200:
                     attachment_content =response.content
-                    attachment_image = cv2.imdecode(np.frombuffer(attachment_content, np.uint8), cv2.IMREAD_COLOR)
-                
+                    try:
+                        attachment_image = cv2.imdecode(np.frombuffer(attachment_content, np.uint8), cv2.IMREAD_COLOR)
+                        time.sleep(3)
+                        if attachment_image is None:
+                            print("Image decoding failed for attachment image.")
+                            attachment_filename = "attachment_image.jpg"  # Change the filename as needed
+                            cv2.imwrite(attachment_filename, attachment_image)
+                            continue
+                    except Exception as e:
+                        print(f"Error decoding attachment image: {e}")
+                        continue
                 # Compare the attachment image with each lost item's image
 
-            ssim_score = -111111
+             
           
-            for lost_attachment_url in lost_item['attachments']:
-                response = requests.get(lost_attachment_url)
-                if response.status_code ==200:
-                    lost_attachment_content = response.content
-                    lost_attachment_image = cv2.imdecode(np.frombuffer(lost_attachment_content, np.uint8), cv2.IMREAD_COLOR)
-                     
-                    try:
-                        ssim_score = compare_ssim(attachment_image, lost_attachment_image, multichannel=True)
-                    except AttributeError:
-                         ssim_score =0 
-                
-                print(ssim_score)
+                for lost_attachment_url in lost_item['attachments']:
+                    url_____ = lost_attachment_url.split('id')[1]
+                    print(url_____)
+                    lost_attachment_url = "https://drive.google.com/uc?id" + url_____
+                    response = requests.get(attachment_url)
+                    if response.status_code ==200:
+                      lost_attachment_content = response.content
+                      lost_attachment_image = cv2.imdecode(np.frombuffer(lost_attachment_content, np.uint8), cv2.IMREAD_COLOR)
+
+                    if attachment_image.shape == lost_attachment_image.shape: 
+                        try:
+
+                            # win_size = min(attachment_image.shape[0], attachment_image.shape[1], 7)  # Adjust as needed
+                            # ssim_score = compare_ssim(attachment_image, lost_attachment_image, win_size=win_size, multichannel=True)
+                            # print(ssim_score)
+                            # attachment_image = np.squeeze(attachment_image)
+                            # lost_attachment_image = np.squeeze(lost_attachment_image)
+
+                            # smaller_side = min(attachment_image.shape[:2])
+                            # win_size = min(smaller_side, 7)  # Use smaller_side as the upper limit
+                            # if win_size % 2 == 0:
+                            #   win_size -= 1  # Ensure it's an odd value
+                            # ssim_score = compare_ssim(attachment_image, lost_attachment_image, win_size=win_size)
+                            # print(ssim_score)
+                           attachment_gray = cv2.cvtColor(attachment_image, cv2.COLOR_BGR2GRAY)
+                           lost_attachment_gray = cv2.cvtColor(lost_attachment_image, cv2.COLOR_BGR2GRAY)
+
+            # Calculate SSIM using grayscale images
+                           (ssim_score,diff) = compare_ssim(attachment_gray, lost_attachment_gray,full= True)
+                           
+                           diff = (diff * 255).astype("uint8")
+
+# 6. You can print only the score if you want
+                           print("SSIM: {}".format(ssim_score))
+                           
+                            
+                        except AttributeError:
+                             ssim_score =0
+                        print(ssim_score)
+                    else :
+                        print ("hooole")
         if ssim_score > threshold :
             try:
                 
