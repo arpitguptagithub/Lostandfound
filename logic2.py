@@ -100,7 +100,7 @@ for found_item_name, found_item in found_items.items():
         if (
             lost_item['category'] == found_item_category and
             (found_item_description in lost_item['description'] or found_item_brand in lost_item['brand'])
-        ):
+        ):  ## Change here like inverse comparison here needs to be done to improve the code
             # Send email to the person who lost the item
             subject = f"Your lost item '{lost_item_name}' has been found!"
             Emessage = f"Your {lost_item_name} has been found. Please contact {found_item['name']} at {found_item['contact_info']} for details."
